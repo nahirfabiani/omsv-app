@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#153244"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="OMSV"/>
+<meta name="description" content="Registro de Velocidad - Operativo Municipal de Seguridad Vial"/>
+
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="icon" type="image/png" href="icons/icon-192.png"/>
+
+<title>OMSV – Registro de Velocidad</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;800&display=swap');
+
+:root {
+  --azul:    #153244;
+  --amarillo:#FFD200;
+  --teal:    #7FDED9;
+  --blanco:  #FFFFFF;
+  --gris-bg: #F4F6F8;
+  --gris-borde: #D8DFE8;
+  --gris-texto: #4A5568;
+  --rojo:    #E53E3E;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overscroll-behavior:none;}
+body{
+  font-family:'Barlow',system-ui,sans-serif;
+  background:var(--gris-bg);
+  color:var(--azul);
+  min-height:100vh;
+  min-height:-webkit-fill-available;
+}
+
+.app{
+  max-width:430px;
+  margin:0 auto;
+  min-height:100vh;
+  min-height:-webkit-fill-available;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── HEADER ── */
+.header{
+  background:var(--azul);
+  color:var(--blanco);
+  padding-top:var(--safe-top);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.header-top{padding:0.9rem 1rem 0.75rem;display:flex;flex-direction:column;}
+.header-line{height:1px;background:rgba(255,255,255,0.18);}
+.header-brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;}
+.brand-left{display:flex;align-items:center;gap:10px;}
+.brand-name{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.65);line-height:1.3;}
+
+.save-status{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.save-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);}
+.save-dot.pulsing{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ── STEPPER ── */
+.stepper{display:flex;align-items:center;justify-content:center;padding:0.7rem 1rem 0.8rem;}
+.step{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;border:2px solid transparent;transition:all 0.2s;}
+.step.active .step-num{background:var(--amarillo);color:var(--azul);border-color:var(--amarillo);}
+.step.done   .step-num{background:var(--teal);color:var(--azul);border-color:var(--teal);}
+.step.inactive .step-num{background:transparent;color:rgba(255,255,255,0.4);border-color:rgba(255,255,255,0.2);}
+.step.active .step-label{color:var(--amarillo);}
+.step.done   .step-label{color:var(--teal);}
+.step.inactive .step-label{color:rgba(255,255,255,0.35);}
+.step-line{width:28px;height:2px;background:rgba(255,255,255,0.2);margin:0 6px;transition:background 0.2s;}
+.step-line.done{background:var(--teal);}
+
+/* ── COUNTER ── */
+.counter-area{padding:0 1rem 0.75rem;display:flex;align-items:center;justify-content:space-between;}
+.counter-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(127,222,217,0.15);color:var(--teal);font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 14px;border:1px solid rgba(127,222,217,0.35);}
+.btn-reset{font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);background:none;border:1px solid rgba(255,255,255,0.15);padding:5px 10px;cursor:pointer;font-family:'Barlow',sans-serif;}
+.btn-reset:active{color:#fff;border-color:rgba(255,255,255,0.5);}
+
+/* ── CONTENT ── */
+.content{
+  flex:1;
+  padding:1rem;
+  padding-bottom:calc(1rem + var(--safe-bottom));
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* ── ALERT ── */
+.restore-alert{background:#fffde7;border-left:4px solid var(--amarillo);padding:0.65rem 1rem;margin-bottom:1rem;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.restore-alert-text{font-size:12px;font-weight:700;color:var(--azul);}
+.restore-alert-sub{font-size:11px;font-weight:400;color:var(--gris-texto);margin-top:2px;}
+.restore-close{font-size:18px;color:var(--gris-texto);cursor:pointer;flex-shrink:0;line-height:1;padding:2px;}
+
+/* ── OFFLINE BANNER ── */
+.offline-banner{background:#E53E3E;color:#fff;padding:6px 1rem;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;text-align:center;display:none;}
+.offline-banner.show{display:block;}
+
+/* ── PANEL ── */
+.panel{background:var(--blanco);border-top:3px solid var(--amarillo);box-shadow:0 2px 12px rgba(21,50,68,0.08);margin-bottom:1rem;overflow:hidden;}
+.panel-header{padding:0.9rem 1rem 0.8rem;border-bottom:1px solid var(--gris-borde);display:flex;align-items:center;justify-content:space-between;}
+.panel-header-left{display:flex;align-items:center;gap:10px;}
+.panel-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--amarillo);line-height:1;}
+.panel-title{font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--azul);}
+.back-btn{width:30px;height:30px;border:1.5px solid var(--gris-borde);background:var(--gris-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--gris-texto);}
+.back-btn:active{background:var(--amarillo);color:var(--azul);}
+
+/* ── INFO BAR ── */
+.info-bar{background:var(--azul);padding:0.55rem 1rem;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;}
+.info-col .info-l{font-size:9px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:rgba(127,222,217,0.7);}
+.info-col .info-v{font-size:11px;font-weight:700;color:var(--blanco);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ── FORM ── */
+.form-body{padding:1rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.field{margin-bottom:1rem;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--azul);margin-bottom:6px;}
+.field label .req{color:var(--rojo);}
+.field select,
+.field input[type=text],
+.field input[type=number]{
+  width:100%;padding:11px 12px;font-size:15px;font-family:'Barlow',sans-serif;font-weight:500;
+  border:1.5px solid var(--gris-borde);
+  background:var(--gris-bg);color:var(--azul);
+  appearance:none;-webkit-appearance:none;
+  border-radius:0;
+  -webkit-border-radius:0;
+  transition:border-color 0.15s;
+}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23153244' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-color:var(--gris-bg);
+}
+.field select:focus,.field input:focus{outline:none;border-color:var(--azul);background:#fff;box-shadow:0 0 0 3px rgba(21,50,68,0.08);}
+.field input::placeholder{color:#a0b0c0;}
+
+/* ── CHIPS ── */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+.chip{
+  padding:9px 13px;
+  border:1.5px solid var(--gris-borde);background:var(--gris-bg);
+  font-size:12px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;
+  color:var(--gris-texto);cursor:pointer;
+  transition:all 0.1s;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.chip:active{transform:scale(0.96);}
+.chip.selected{background:var(--azul);border-color:var(--azul);color:var(--amarillo);}
+
+.otros-detail{margin-top:8px;overflow:hidden;max-height:0;transition:max-height 0.2s ease;}
+.otros-detail.visible{max-height:70px;}
+.otros-detail input{width:100%;padding:10px 12px;font-size:14px;font-family:'Barlow',sans-serif;border:1.5px solid var(--azul);background:#fff;color:var(--azul);border-radius:0;-webkit-border-radius:0;}
+.otros-detail input:focus{outline:none;border-color:var(--amarillo);background:#fffde7;}
+.otros-detail input::placeholder{color:#a0b0c0;}
+
+/* ── BOTONES ── */
+.btn-primary{
+  width:100%;padding:14px;border:none;
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  background:var(--azul);color:var(--blanco);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  -webkit-tap-highlight-color:transparent;
+  transition:background 0.15s;
+}
+.btn-primary:active{background:#1d4460;}
+
+.btn-excel{
+  width:100%;padding:14px;border:none;
+  font-family:'Barlow',sans-serif;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  background:var(--amarillo);color:var(--azul);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:10px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-excel:active{opacity:0.85;}
+
+/* ── ERROR ── */
+.err{font-size:11px;font-weight:600;color:var(--rojo);margin-top:4px;display:none;}
+.err.show{display:block;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(21,50,68,0.75);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;max-width:320px;width:100%;padding:1.5rem;border-top:4px solid var(--rojo);}
+.modal-title{font-size:14px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--azul);margin-bottom:0.5rem;}
+.modal-body{font-size:13px;color:var(--gris-texto);margin-bottom:1.25rem;line-height:1.55;}
+.modal-body strong{color:var(--rojo);}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-cancel{padding:11px;border:1.5px solid var(--gris-borde);background:var(--gris-bg);font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--gris-texto);cursor:pointer;}
+.modal-confirm{padding:11px;border:none;background:var(--rojo);font-family:'Barlow',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#fff;cursor:pointer;}
+
+/* ── INSTALL BANNER ── */
+.install-banner{background:var(--azul);border-left:4px solid var(--teal);padding:0.75rem 1rem;margin-bottom:1rem;display:none;align-items:center;justify-content:space-between;gap:12px;}
+.install-banner.show{display:flex;}
+.install-text{font-size:12px;color:#fff;line-height:1.4;}
+.install-text strong{color:var(--teal);display:block;font-size:11px;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:2px;}
+.install-btn{padding:7px 14px;background:var(--amarillo);color:var(--azul);font-family:'Barlow',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.install-close{color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;flex-shrink:0;}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(80px);
+  background:var(--azul);color:var(--blanco);
+  padding:10px 20px;border-left:4px solid var(--amarillo);
+  font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
+  transition:transform 0.25s;z-index:100;white-space:nowrap;
+  box-shadow:0 4px 20px rgba(21,50,68,0.3);
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- OFFLINE -->
+  <div class="offline-banner" id="offline-banner">Sin conexión — los datos siguen guardados</div>
+
+  <div class="header">
+    <div class="header-top">
+      <div class="header-brand">
+        <div class="brand-left">
+          <svg width="32" height="22" viewBox="0 0 80 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 10 Q0 0 10 0 H30 Q40 0 40 10 V20 Q40 30 50 30 H70 Q80 30 80 40 V45 Q80 55 70 55 H10 Q0 55 0 45 Z" fill="white"/>
+            <rect x="42" y="0" width="38" height="25" rx="10" fill="white"/>
+          </svg>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#fff;line-height:1;">OMSV</div>
+            <div class="brand-name">Registro de Velocidad</div>
+          </div>
+        </div>
+        <div class="save-status" id="save-status" style="display:none">
+          <div class="save-dot pulsing" id="save-dot"></div>
+          <span style="color:var(--teal)">Guardado</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-line"></div>
+
+    <div class="stepper">
+      <div class="step active" id="step1-el">
+        <div class="step-num">1</div>
+        <div class="step-label">Datos generales</div>
+      </div>
+      <div class="step-line" id="step-line"></div>
+      <div class="step inactive" id="step2-el">
+        <div class="step-num">2</div>
+        <div class="step-label">Registro de vehículos</div>
+      </div>
+    </div>
+
+    <div class="counter-area" id="counter-area" style="display:none">
+      <span class="counter-pill">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span id="counter-num">0</span> registrados
+      </span>
+      <button class="btn-reset" onclick="confirmarReset()">Nueva sesión</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- INSTALL BANNER -->
+    <div class="install-banner" id="install-banner">
+      <div class="install-text">
+        <strong>Instalá la app</strong>
+        Agregá OMSV a tu pantalla de inicio para usarla sin internet
+      </div>
+      <button class="install-btn" id="install-btn" onclick="instalarPWA()">Instalar</button>
+      <span class="install-close" onclick="cerrarInstall()">✕</span>
+    </div>
+
+    <!-- RESTORE ALERT -->
+    <div class="restore-alert" id="restore-alert" style="display:none">
+      <div>
+        <div class="restore-alert-text">📂 Sesión anterior recuperada</div>
+        <div class="restore-alert-sub" id="restore-alert-sub"></div>
+      </div>
+      <div class="restore-close" onclick="cerrarAlerta()">✕</div>
+    </div>
+
+    <!-- PASO 1 -->
+    <div id="paso1">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <span class="panel-num">01</span>
+            <span class="panel-title">Datos Generales</span>
+          </div>
+        </div>
+        <div class="form-body">
+          <div class="form-row">
+            <div class="field">
+              <label>Observador <span class="req">*</span></label>
+              <select id="observador">
+                <option value="">Selecciona</option>
+                <option>Nahir Fabiani</option>
+                <option>Ana Street</option>
+                <option>Agente 03</option>
+                <option>Agente 04</option>
+                <option>Agente 05</option>
+              </select>
+              <div class="err" id="err-obs">Campo requerido</div>
+            </div>
+            <div class="field">
+              <label>Comuna <span class="req">*</span></label>
+              <select id="comuna">
+                <option value="">Selecciona</option>
+                <option>1</option><option>2</option><option>3</option>
+                <option>4</option><option>5</option><option>6</option>
+                <option>7</option><option>8</option><option>9</option>
+                <option>10</option><option>11</option><option>12</option>
+                <option>13</option><option>14</option><option>15</option>
+              </select>
+              <div class="err" id="err-com">Campo requerido</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Tramo <span class="req">*</span></label>
+            <input type="text" id="tramo" placeholder="Ingresa el tramo" autocomplete="off"/>
+            <div class="err" id="err-tramo">Campo requerido</div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label>Turno <span class="req">*</span></label>
+              <select id="turno">
+                <option value="">Selecciona</option>
+                <option>Mañana</option>
+                <option>Tarde</option>
+                <option>Noche</option>
+              </select>
+              <div class="err" id="err-turno">Campo requerido</div>
+            </div>
+            <div class="field">
+              <label>Máx. de la vía (km/h) <span class="req">*</span></label>
+              <input type="number" id="maxvia" placeholder="Ej: 60" min="10" max="130" inputmode="numeric"/>
+              <div class="err" id="err-max">Campo requerido</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Conteo de 15 minutos <span class="req">*</span></label>
+            <input type="number" id="conteo" placeholder="Ingresa el conteo" min="0" inputmode="numeric"/>
+            <div class="err" id="err-conteo">Campo requerido</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="continuar()">Continuar →</button>
+    </div>
+
+    <!-- PASO 2 -->
+    <div id="paso2" style="display:none">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <span class="panel-num">02</span>
+            <span class="panel-title">Registro de Vehículo</span>
+          </div>
+          <div class="back-btn" onclick="volverPaso1()">←</div>
+        </div>
+        <div class="info-bar" id="info-bar"></div>
+        <div class="form-body">
+          <div class="field">
+            <label>Tipo de vehículo <span class="req">*</span></label>
+            <div class="chips" id="chips-tipo">
+              <div class="chip" onclick="selChip(this,'tipo')">Auto</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Moto</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Utilitario</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Colectivo</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Taxi</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Camión</div>
+              <div class="chip" onclick="selChip(this,'tipo')">Otros</div>
+            </div>
+            <div class="otros-detail" id="detail-tipo">
+              <input type="text" id="detail-tipo-val" placeholder="Especificá el tipo..." autocomplete="off"/>
+            </div>
+            <div class="err" id="err-tipo">Seleccioná un tipo</div>
+          </div>
+          <div class="field">
+            <label>Uso de vehículo <span class="req">*</span></label>
+            <div class="chips" id="chips-uso">
+              <div class="chip" onclick="selChip(this,'uso')">Particular</div>
+              <div class="chip" onclick="selChip(this,'uso')">Comercial</div>
+              <div class="chip" onclick="selChip(this,'uso')">Transporte de pasajeros</div>
+              <div class="chip" onclick="selChip(this,'uso')">Otros</div>
+            </div>
+            <div class="otros-detail" id="detail-uso">
+              <input type="text" id="detail-uso-val" placeholder="Especificá el uso..." autocomplete="off"/>
+            </div>
+            <div class="err" id="err-uso">Seleccioná un uso</div>
+          </div>
+          <div class="field">
+            <label>Velocidad observada (km/h) <span class="req">*</span></label>
+            <input type="number" id="velocidad" placeholder="Ej: 45" min="0" max="300" inputmode="numeric"/>
+            <div class="err" id="err-vel">Ingresá la velocidad</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="guardar()">Guardar registro</button>
+      <button class="btn-excel" onclick="exportarExcel()">↓ Descargar Excel</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title">¿Nueva sesión?</div>
+    <div class="modal-body">Se borrarán <strong id="modal-count">0</strong> registros guardados localmente. Esta acción no se puede deshacer.<br><br>Descargá el Excel antes si necesitás conservar los datos.</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="modal-confirm" onclick="ejecutarReset()">Borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── STORAGE ── */
+const STORAGE_KEY = 'omsv_session_v2';
+let datosGenerales = {};
+let registros = [];
+let selTipo = '';
+let selUso = '';
+let idContador = 1;
+let deferredPrompt = null;
+
+const FERIADOS = new Set([
+  '2025-01-01','2025-03-03','2025-03-04','2025-03-24','2025-04-02',
+  '2025-04-18','2025-05-01','2025-05-25','2025-06-20','2025-07-09',
+  '2025-08-17','2025-10-12','2025-11-20','2025-12-08','2025-12-25',
+  '2026-01-01','2026-02-16','2026-02-17','2026-03-24','2026-04-02',
+  '2026-04-03','2026-05-01','2026-05-25','2026-06-20','2026-07-09',
+  '2026-08-17','2026-10-12','2026-11-20','2026-12-08','2026-12-25'
+]);
+
+function guardarEnStorage() {
+  try {
+    const paso = document.getElementById('paso2').style.display !== 'none' ? 2 : 1;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ datosGenerales, registros, idContador, paso }));
+    const ss = document.getElementById('save-status');
+    ss.style.display = 'flex';
+    const dot = document.getElementById('save-dot');
+    dot.classList.add('pulsing');
+    setTimeout(() => dot.classList.remove('pulsing'), 1500);
+  } catch(e) {}
+}
+
+function cargarDesdeStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data.registros || data.registros.length === 0) return;
+    registros = data.registros;
+    idContador = data.idContador || (registros.length + 1);
+    datosGenerales = data.datosGenerales || {};
+
+    if (data.paso === 2 && datosGenerales.observador) {
+      setSelectVal('observador', datosGenerales.observador);
+      setSelectVal('comuna', datosGenerales.comuna);
+      document.getElementById('tramo').value = datosGenerales.tramo || '';
+      setSelectVal('turno', datosGenerales.turno);
+      document.getElementById('maxvia').value = datosGenerales.maxVia || '';
+      document.getElementById('conteo').value = datosGenerales.conteo || '';
+      irPaso2(true);
+    }
+
+    const ultima = new Date(registros[registros.length - 1].fecha);
+    document.getElementById('restore-alert-sub').textContent =
+      `${registros.length} registros · último: ${ultima.toLocaleDateString('es-AR')} ${ultima.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}`;
+    document.getElementById('restore-alert').style.display = 'flex';
+    document.getElementById('save-status').style.display = 'flex';
+  } catch(e) {}
+}
+
+function setSelectVal(id, val) {
+  const sel = document.getElementById(id);
+  for (const o of sel.options) {
+    if (o.value === val || o.text === val) { sel.value = o.value; break; }
+  }
+}
+
+/* ── UTILS ── */
+function esHabil(f) {
+  const d = f.getDay();
+  if (d===0||d===6) return false;
+  return !FERIADOS.has(f.toISOString().slice(0,10));
+}
+function fmtFecha(iso) { return new Date(iso).toLocaleDateString('es-AR'); }
+function fmtHorario(iso) { return new Date(iso).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'}); }
+function diaSemana(iso) { return ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][new Date(iso).getDay()]; }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function cerrarAlerta() { document.getElementById('restore-alert').style.display='none'; }
+function cerrarInstall() { document.getElementById('install-banner').classList.remove('show'); }
+
+/* ── CHIPS ── */
+function selChip(el, grupo) {
+  document.getElementById('chips-'+grupo).querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const val = el.textContent;
+  if (grupo==='tipo') {
+    selTipo=val;
+    document.getElementById('detail-tipo').classList.toggle('visible',val==='Otros');
+    if(val!=='Otros') document.getElementById('detail-tipo-val').value='';
+  }
+  if (grupo==='uso') {
+    selUso=val;
+    document.getElementById('detail-uso').classList.toggle('visible',val==='Otros');
+    if(val!=='Otros') document.getElementById('detail-uso-val').value='';
+  }
+  document.getElementById('err-'+grupo).classList.remove('show');
+}
+
+function setErr(id,show) { document.getElementById(id).classList[show?'add':'remove']('show'); }
+
+/* ── PASOS ── */
+function continuar() {
+  const obs   = document.getElementById('observador').value;
+  const com   = document.getElementById('comuna').value;
+  const tramo = document.getElementById('tramo').value.trim();
+  const turno = document.getElementById('turno').value;
+  const max   = document.getElementById('maxvia').value;
+  const cont  = document.getElementById('conteo').value;
+  let ok=true;
+  setErr('err-obs',   !obs);   if(!obs)   ok=false;
+  setErr('err-com',   !com);   if(!com)   ok=false;
+  setErr('err-tramo', !tramo); if(!tramo) ok=false;
+  setErr('err-turno', !turno); if(!turno) ok=false;
+  setErr('err-max',   !max);   if(!max)   ok=false;
+  setErr('err-conteo',!cont);  if(!cont)  ok=false;
+  if(!ok) return;
+  datosGenerales={observador:obs,comuna:com,tramo,turno,maxVia:parseInt(max),conteo:parseInt(cont)};
+  guardarEnStorage();
+  irPaso2(false);
+}
+
+function irPaso2(silencioso) {
+  document.getElementById('paso1').style.display='none';
+  document.getElementById('paso2').style.display='block';
+  document.getElementById('step1-el').className='step done';
+  document.getElementById('step2-el').className='step active';
+  document.getElementById('step-line').classList.add('done');
+  document.getElementById('counter-area').style.display='flex';
+  actualizarInfoBar();
+  actualizarContador();
+  if(!silencioso) resetForm();
+}
+
+function actualizarInfoBar() {
+  if(!datosGenerales.observador) return;
+  document.getElementById('info-bar').innerHTML=`
+    <div class="info-col"><div class="info-l">Obs</div><div class="info-v">${datosGenerales.observador.split(' ')[0]}</div></div>
+    <div class="info-col"><div class="info-l">Comuna</div><div class="info-v">${datosGenerales.comuna}</div></div>
+    <div class="info-col"><div class="info-l">Tramo</div><div class="info-v">${datosGenerales.tramo}</div></div>
+    <div class="info-col"><div class="info-l">Turno</div><div class="info-v">${datosGenerales.turno}</div></div>
+  `;
+}
+
+function volverPaso1() {
+  document.getElementById('paso1').style.display='block';
+  document.getElementById('paso2').style.display='none';
+  document.getElementById('step1-el').className='step active';
+  document.getElementById('step2-el').className='step inactive';
+  document.getElementById('step-line').classList.remove('done');
+  document.getElementById('counter-area').style.display='none';
+}
+
+function actualizarContador() { document.getElementById('counter-num').textContent=registros.length; }
+
+function resetForm() {
+  selTipo='';selUso='';
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('velocidad').value='';
+  document.getElementById('detail-tipo-val').value='';
+  document.getElementById('detail-uso-val').value='';
+  document.getElementById('detail-tipo').classList.remove('visible');
+  document.getElementById('detail-uso').classList.remove('visible');
+  ['err-tipo','err-uso','err-vel'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+
+/* ── GUARDAR ── */
+function guardar() {
+  const vel=parseInt(document.getElementById('velocidad').value)||0;
+  let ok=true;
+  if(!selTipo){document.getElementById('err-tipo').classList.add('show');ok=false;}
+  if(!selUso) {document.getElementById('err-uso').classList.add('show'); ok=false;}
+  if(!vel||vel<=0){document.getElementById('err-vel').classList.add('show');ok=false;}
+  if(!ok) return;
+  const tipoD=selTipo==='Otros'?document.getElementById('detail-tipo-val').value.trim():'';
+  const usoD =selUso ==='Otros'?document.getElementById('detail-uso-val').value.trim():'';
+  const ahora=new Date();
+  registros.push({
+    id:idContador++,
+    fecha:ahora.toISOString(),
+    dia:diaSemana(ahora.toISOString()),
+    habil:esHabil(ahora)?'Hábil':'Inhábil',
+    horario:fmtHorario(ahora.toISOString()),
+    tramo:datosGenerales.tramo,
+    tipo:tipoD?`Otros (${tipoD})`:selTipo,
+    uso:usoD?`Otros (${usoD})`:selUso,
+    velocidad:vel,
+    limite:datosGenerales.maxVia
+  });
+  guardarEnStorage();
+  actualizarContador();
+  showToast(`✓ Registro #${idContador-1} guardado`);
+  resetForm();
+}
+
+/* ── RESET ── */
+function confirmarReset() {
+  document.getElementById('modal-count').textContent=registros.length;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function cerrarModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+function ejecutarReset() {
+  registros=[];datosGenerales={};idContador=1;
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+  cerrarModal();volverPaso1();
+  document.getElementById('save-status').style.display='none';
+  document.getElementById('restore-alert').style.display='none';
+  ['observador','comuna','turno'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tramo').value='';
+  document.getElementById('maxvia').value='';
+  document.getElementById('conteo').value='';
+  showToast('✓ Nueva sesión iniciada');
+}
+
+/* ── EXPORTAR ── */
+function exportarExcel() {
+  if(registros.length===0){showToast('⚠ Guardá al menos un registro');return;}
+  const cols=['ID Registro','Fecha','Día','Hábil/Inhábil','Horario','Tramo','Tipo de vehículo','Uso de vehículo','Velocidad observada (km/h)','Límite de velocidad (km/h)'];
+  const filas=registros.map(r=>[r.id,fmtFecha(r.fecha),r.dia,r.habil,r.horario,r.tramo,r.tipo,r.uso,r.velocidad,r.limite]);
+  let csv=cols.join('\t')+'\n'+filas.map(f=>f.map(v=>String(v)).join('\t')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/tab-separated-values;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`OMSV_${new Date().toISOString().slice(0,10)}.xls`;
+  a.click();URL.revokeObjectURL(url);
+  showToast('✓ Excel descargado');
+}
+
+/* ── PWA INSTALL ── */
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+async function instalarPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') showToast('✓ App instalada correctamente');
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+}
+
+window.addEventListener('appinstalled', () => {
+  showToast('✓ OMSV instalada en tu dispositivo');
+  document.getElementById('install-banner').classList.remove('show');
+});
+
+/* ── OFFLINE ── */
+window.addEventListener('online',  () => document.getElementById('offline-banner').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offline-banner').classList.add('show'));
+if (!navigator.onLine) document.getElementById('offline-banner').classList.add('show');
+
+/* ── SERVICE WORKER ── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('SW registrado'))
+      .catch(e => console.warn('SW error:', e));
+  });
+}
+
+/* ── INIT ── */
+cargarDesdeStorage();
+</script>
+</body>
+</html>
