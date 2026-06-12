@@ -233,10 +233,7 @@ body{
     <div class="header-top">
       <div class="header-brand">
         <div class="brand-left">
-          <svg width="32" height="22" viewBox="0 0 80 55" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 10 Q0 0 10 0 H30 Q40 0 40 10 V20 Q40 30 50 30 H70 Q80 30 80 40 V45 Q80 55 70 55 H10 Q0 55 0 45 Z" fill="white"/>
-            <rect x="42" y="0" width="38" height="25" rx="10" fill="white"/>
-          </svg>
+          <img src="icons/logo-ba.png" alt="BA Ciudad" style="height:36px;width:auto;display:block;"/>
           <div>
             <div style="font-size:16px;font-weight:800;color:#fff;line-height:1;">OMSV</div>
             <div class="brand-name">Registro de Velocidad</div>
@@ -309,9 +306,12 @@ body{
                 <option value="">Selecciona</option>
                 <option>Nahir Fabiani</option>
                 <option>Ana Street</option>
+                <option>Leo</option>
+                <option>Mariano</option>
+                <option>Fabiana</option>
+                <option>Agente 01</option>
+                <option>Agente 02</option>
                 <option>Agente 03</option>
-                <option>Agente 04</option>
-                <option>Agente 05</option>
               </select>
               <div class="err" id="err-obs">Campo requerido</div>
             </div>
@@ -328,10 +328,21 @@ body{
               <div class="err" id="err-com">Campo requerido</div>
             </div>
           </div>
-          <div class="field">
-            <label>Tramo <span class="req">*</span></label>
-            <input type="text" id="tramo" placeholder="Ingresa el tramo" autocomplete="off"/>
-            <div class="err" id="err-tramo">Campo requerido</div>
+          <div class="form-row">
+            <div class="field">
+              <label>Tramo <span class="req">*</span></label>
+              <input type="text" id="tramo" placeholder="Ingresa el tramo" autocomplete="off"/>
+              <div class="err" id="err-tramo">Campo requerido</div>
+            </div>
+            <div class="field">
+              <label>Tipo de tramo <span class="req">*</span></label>
+              <select id="tipoTramo">
+                <option value="">Selecciona</option>
+                <option>Pasante</option>
+                <option>Giro</option>
+              </select>
+              <div class="err" id="err-tipoTramo">Campo requerido</div>
+            </div>
           </div>
           <div class="form-row">
             <div class="field">
@@ -386,6 +397,9 @@ body{
             <div class="otros-detail" id="detail-tipo">
               <input type="text" id="detail-tipo-val" placeholder="Especificá el tipo..." autocomplete="off"/>
             </div>
+            <div class="otros-detail" id="detail-colectivo">
+              <input type="number" id="detail-colectivo-val" placeholder="Línea de colectivo (ej: 60)" autocomplete="off" inputmode="numeric"/>
+            </div>
             <div class="err" id="err-tipo">Seleccioná un tipo</div>
           </div>
           <div class="field">
@@ -409,7 +423,7 @@ body{
         </div>
       </div>
       <button class="btn-primary" onclick="guardar()">Guardar registro</button>
-      <button class="btn-excel" onclick="exportarExcel()">↓ Descargar Excel</button>
+      <button class="btn-excel" onclick="exportarExcel()">↓ Descargar CSV</button>
     </div>
 
   </div>
@@ -474,6 +488,7 @@ function cargarDesdeStorage() {
       setSelectVal('observador', datosGenerales.observador);
       setSelectVal('comuna', datosGenerales.comuna);
       document.getElementById('tramo').value = datosGenerales.tramo || '';
+      setSelectVal('tipoTramo', datosGenerales.tipoTramo);
       setSelectVal('turno', datosGenerales.turno);
       document.getElementById('maxvia').value = datosGenerales.maxVia || '';
       document.getElementById('conteo').value = datosGenerales.conteo || '';
@@ -524,6 +539,8 @@ function selChip(el, grupo) {
     selTipo=val;
     document.getElementById('detail-tipo').classList.toggle('visible',val==='Otros');
     if(val!=='Otros') document.getElementById('detail-tipo-val').value='';
+    document.getElementById('detail-colectivo').classList.toggle('visible',val==='Colectivo');
+    if(val!=='Colectivo') document.getElementById('detail-colectivo-val').value='';
   }
   if (grupo==='uso') {
     selUso=val;
@@ -540,6 +557,7 @@ function continuar() {
   const obs   = document.getElementById('observador').value;
   const com   = document.getElementById('comuna').value;
   const tramo = document.getElementById('tramo').value.trim();
+  const tipoTramo = document.getElementById('tipoTramo').value;
   const turno = document.getElementById('turno').value;
   const max   = document.getElementById('maxvia').value;
   const cont  = document.getElementById('conteo').value;
@@ -547,11 +565,12 @@ function continuar() {
   setErr('err-obs',   !obs);   if(!obs)   ok=false;
   setErr('err-com',   !com);   if(!com)   ok=false;
   setErr('err-tramo', !tramo); if(!tramo) ok=false;
+  setErr('err-tipoTramo', !tipoTramo); if(!tipoTramo) ok=false;
   setErr('err-turno', !turno); if(!turno) ok=false;
   setErr('err-max',   !max);   if(!max)   ok=false;
   setErr('err-conteo',!cont);  if(!cont)  ok=false;
   if(!ok) return;
-  datosGenerales={observador:obs,comuna:com,tramo,turno,maxVia:parseInt(max),conteo:parseInt(cont)};
+  datosGenerales={observador:obs,comuna:com,tramo,tipoTramo,turno,maxVia:parseInt(max),conteo:parseInt(cont)};
   guardarEnStorage();
   irPaso2(false);
 }
@@ -595,8 +614,10 @@ function resetForm() {
   document.getElementById('velocidad').value='';
   document.getElementById('detail-tipo-val').value='';
   document.getElementById('detail-uso-val').value='';
+  document.getElementById('detail-colectivo-val').value='';
   document.getElementById('detail-tipo').classList.remove('visible');
   document.getElementById('detail-uso').classList.remove('visible');
+  document.getElementById('detail-colectivo').classList.remove('visible');
   ['err-tipo','err-uso','err-vel'].forEach(id=>document.getElementById(id).classList.remove('show'));
 }
 
@@ -610,6 +631,7 @@ function guardar() {
   if(!ok) return;
   const tipoD=selTipo==='Otros'?document.getElementById('detail-tipo-val').value.trim():'';
   const usoD =selUso ==='Otros'?document.getElementById('detail-uso-val').value.trim():'';
+  const lineaColectivo = selTipo==='Colectivo' ? document.getElementById('detail-colectivo-val').value.trim() : '';
   const ahora=new Date();
   registros.push({
     id:idContador++,
@@ -619,6 +641,7 @@ function guardar() {
     horario:fmtHorario(ahora.toISOString()),
     tramo:datosGenerales.tramo,
     tipo:tipoD?`Otros (${tipoD})`:selTipo,
+    linea: lineaColectivo,
     uso:usoD?`Otros (${usoD})`:selUso,
     velocidad:vel,
     limite:datosGenerales.maxVia
@@ -651,13 +674,30 @@ function ejecutarReset() {
 /* ── EXPORTAR ── */
 function exportarExcel() {
   if(registros.length===0){showToast('⚠ Guardá al menos un registro');return;}
-  const cols=['ID Registro','Fecha','Día','Hábil/Inhábil','Horario','Tramo','Tipo de vehículo','Uso de vehículo','Velocidad observada (km/h)','Límite de velocidad (km/h)'];
-  const filas=registros.map(r=>[r.id,fmtFecha(r.fecha),r.dia,r.habil,r.horario,r.tramo,r.tipo,r.uso,r.velocidad,r.limite]);
-  let csv=cols.join('\t')+'\n'+filas.map(f=>f.map(v=>String(v)).join('\t')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/tab-separated-values;charset=utf-8;'});
+
+  const cols=['ID Registro','Fecha','Día','Hábil/Inhábil','Horario','Tramo','Tipo de vehículo','Línea de colectivo','Uso de vehículo','Velocidad observada (km/h)','Límite de velocidad (km/h)'];
+
+  const filaConteo = ['—','—','—','—','Conteo inicial 15 min','—','—','—','—', datosGenerales.conteo ?? '—','—'];
+
+  const filas=registros.map(r=>[r.id,fmtFecha(r.fecha),r.dia,r.habil,r.horario,r.tramo,r.tipo,r.linea||'',r.uso,r.velocidad,r.limite]);
+
+  let csv = cols.join(';') + '\n';
+  csv += filaConteo.join(';') + '\n';
+  csv += filas.map(f=>f.map(v=>String(v)).join(';')).join('\n');
+
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`OMSV_${new Date().toISOString().slice(0,10)}.xls`;
+
+  // Nombre: observador-dia-mes-año-tramo
+  const obs = (datosGenerales.observador || 'observador').replace(/\s+/g,'_');
+  const ahoraF = new Date();
+  const dd = String(ahoraF.getDate()).padStart(2,'0');
+  const mm = String(ahoraF.getMonth()+1).padStart(2,'0');
+  const yyyy = ahoraF.getFullYear();
+  const tramo = (datosGenerales.tramo || 'tramo').replace(/\s+/g,'_').replace(/[^\w\-]/g,'');
+
+  a.href=url;a.download=`${obs}-${dd}-${mm}-${yyyy}-${tramo}.csv`;
   a.click();URL.revokeObjectURL(url);
   showToast('✓ Excel descargado');
 }

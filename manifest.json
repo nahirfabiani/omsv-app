@@ -1,7 +1,7 @@
 {
   "name": "OMSV – Registro de Velocidad",
   "short_name": "OMSV",
-  "description": "Operativo Municipal de Seguridad Vial – Registro de velocidades en vía pública",
+  "description": "Relevamiento de Seguridad Vial – Registro de velocidades en vía pública",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
