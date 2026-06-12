@@ -1,3 +1,8 @@
+<!--
+  © 2026 Nahir Fabiani. Todos los derechos reservados.
+  OMSV - Registro de Velocidad
+  Uso, copia o distribución no autorizada está prohibida.
+-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -211,6 +216,16 @@ body{
 .install-close{color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;flex-shrink:0;}
 
 /* ── TOAST ── */
+/* ── FOOTER ── */
+.app-footer{
+  text-align:center;
+  font-size:10px;
+  font-weight:500;
+  letter-spacing:0.4px;
+  color:#a0b0c0;
+  padding:1.25rem 0 0.5rem;
+}
+
 .toast{
   position:fixed;bottom:calc(20px + var(--safe-bottom));left:50%;
   transform:translateX(-50%) translateY(80px);
@@ -425,6 +440,8 @@ body{
       <button class="btn-primary" onclick="guardar()">Guardar registro</button>
       <button class="btn-excel" onclick="exportarExcel()">↓ Descargar CSV</button>
     </div>
+
+    <div class="app-footer">© 2026 Nahir Fabiani — OMSV v1.0</div>
 
   </div>
 </div>
@@ -676,6 +693,7 @@ function exportarExcel() {
   if(registros.length===0){showToast('⚠ Guardá al menos un registro');return;}
 
   const cols=['ID Registro','Fecha','Día','Hábil/Inhábil','Horario','Tramo','Tipo de vehículo','Línea de colectivo','Uso de vehículo','Velocidad observada (km/h)','Límite de velocidad (km/h)'];
+
 
   const filaConteo = ['—','—','—','—','Conteo inicial 15 min','—','—','—','—', datosGenerales.conteo ?? '—','—'];
 

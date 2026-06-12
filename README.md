@@ -28,7 +28,19 @@ omsv-pwa/
 
 ---
 
-## Soporte
+## LICENCIA
 
-App desarrollada por Nahir Fabiani, Licenciada en accidentología y Prevención Vial y Programadora, para Relevamiento de Seguridad Vial del Observatorio de la Movilidad y Seguridad Vial de GCABA.
+© 2026 Nahir Fabiani. Todos los derechos reservados.
+
+OMSV – Registro de Velocidad
+
+Este software, su código fuente, diseño de interfaz y documentación 
+son propiedad de Nahir Fabiani. Su uso, copia, modificación, 
+distribución o explotación comercial, total o parcial, sin 
+autorización escrita previa del autor está prohibido.
+
+Desarrollado para el Relevamiento de Seguridad Vial del Observatorio de Movilidad y Seguridad Vial del GCABA.
+Versión 1.0 — Junio 2026.
+
+Para consultas sobre licenciamiento, contactar a: nahirfabiani@gmail.com
 
