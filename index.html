@@ -239,10 +239,6 @@ body{
 </style>
 </head>
 <body>
-  <script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 <div class="app">
 
   <!-- OFFLINE -->
@@ -762,5 +758,9 @@ if ('serviceWorker' in navigator) {
 /* ── INIT ── */
 cargarDesdeStorage();
 </script>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
