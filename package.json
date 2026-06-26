@@ -1,0 +1,22 @@
+{
+  "name": "omsv-app",
+  "version": "1.0.0",
+  "description": "OMSV - Registro de Velocidad - Operativo Municipal de Seguridad Vial",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'Static site - no build required'",
+    "lint": "echo 'No linter configured'"
+  },
+  "keywords": [
+    "omsv",
+    "vercel",
+    "analytics"
+  ],
+  "author": "Nahir Fabiani",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
